@@ -7,13 +7,13 @@ use nom::{
 
 #[derive(Clone, Copy, Debug)]
 struct AlmanacMap {
-    dest_start: u32,
-    source_start: u32,
-    length: u32,
+    dest_start: u64,
+    source_start: u64,
+    length: u64,
 }
 
 impl AlmanacMap {
-    fn from(source: &u32) -> AlmanacMap {
+    fn from(source: &u64) -> AlmanacMap {
         AlmanacMap {
             dest_start: source.clone(),
             source_start: source.clone(),
@@ -21,35 +21,35 @@ impl AlmanacMap {
         }
     }
 
-    fn contains_source(&self, source: &u32) -> bool {
+    fn contains_source(&self, source: &u64) -> bool {
         let source_end = &self.source_start + &self.length;
         source >= &self.source_start && source < &source_end
     }
 
-    fn convert_source_to_dest(&self, source: u32) -> u32 {
+    fn convert_source_to_dest(&self, source: u64) -> u64 {
         // Determine if the destination is smaller or bigger than the source.
-        let change: i32 = self.source_start.abs_diff(self.dest_start) as i32;
-        let change: i32 = change * (if self.dest_start >= self.source_start {
+        let change: i64 = self.source_start.abs_diff(self.dest_start) as i64;
+        let change: i64 = change * (if self.dest_start >= self.source_start {
             1
         } else {
             -1
         });
 
-        ((source as i32) + change) as u32
+        ((source as i64) + change) as u64
     }
 }
 
-fn parse_space_list(input: &str) -> IResult<&str, Vec<u32>> {
+fn parse_space_list(input: &str) -> IResult<&str, Vec<u64>> {
     let (_, numbers) = separated_list1(tag(" "), digit1)(input)?;
-    let numbers = numbers.into_iter().map(|number| number.parse::<u32>().unwrap()).collect();
+    let numbers = numbers.into_iter().map(|number| number.parse::<u64>().unwrap()).collect();
     Ok((input, numbers))
 }
 
-fn parse_seeds(input: &str) -> IResult<&str, Vec<u32>> {
+fn parse_seeds(input: &str) -> IResult<&str, Vec<u64>> {
     let (input, _) = tuple((tag("seeds:"), multispace0))(input)?;
     let (input, seeds) = separated_list1(multispace1, digit1)(input)?;
     let (input, _) = multispace1(input)?;
-    let seeds = seeds.into_iter().map(|seed| seed.parse::<u32>().expect("a number")).collect::<Vec<u32>>();
+    let seeds = seeds.into_iter().map(|seed| seed.parse::<u64>().expect("a number")).collect::<Vec<u64>>();
     Ok((input, seeds))
 }
 
@@ -67,7 +67,7 @@ fn parse_map(input: &str) -> IResult<&str, Vec<AlmanacMap>> {
     Ok((input, maps))
 }
 
-fn get_almanac_map(seed: u32, seed_maps: &Vec<AlmanacMap>) -> Option<AlmanacMap> {
+fn get_almanac_map(seed: u64, seed_maps: &Vec<AlmanacMap>) -> Option<AlmanacMap> {
     let seed_maps: Vec<AlmanacMap> = seed_maps
         .clone() // because we need to make new maps if none were found.
         .into_iter()
@@ -80,7 +80,7 @@ fn get_almanac_map(seed: u32, seed_maps: &Vec<AlmanacMap>) -> Option<AlmanacMap>
     })
 }
 
-fn get_location_from_seed(seed: &u32, seed_maps: &Vec<Vec<AlmanacMap>>) -> u32 {
+fn get_location_from_seed(seed: &u64, seed_maps: &Vec<Vec<AlmanacMap>>) -> u64 {
     let mut seed_maps = seed_maps.iter();
 
     let seed = seed.clone();
@@ -119,9 +119,10 @@ fn get_location_from_seed(seed: &u32, seed_maps: &Vec<Vec<AlmanacMap>>) -> u32 {
     location
 }
 
-pub fn process(input: &str) -> u32 {
+pub fn process(input: &str) -> u64 {
     let (input, seeds) = parse_seeds(&input).expect("seeds can be found");
 
+    // FIXME This will break on Windows because we split on \n\n not \r\n\r\n.
     let mut seed_maps = input.split("\n\n").collect::<Vec<&str>>().into_iter();
 
     let (_, seed_to_soil)            = parse_map(seed_maps.next().unwrap()).expect("seed_to_soil can be found");
@@ -134,7 +135,7 @@ pub fn process(input: &str) -> u32 {
 
     let maps = vec![seed_to_soil, soil_to_fertilizer, fertilizer_to_water, water_to_light, light_to_temperature, temperature_to_humidity, humidity_to_location];
 
-    seeds.iter().fold(1000, |mut lowest_location, seed| {
+    seeds.iter().fold(u64::MAX, |mut lowest_location, seed| {
         let location = get_location_from_seed(seed, &maps);
         if location < lowest_location {
             lowest_location = location;
@@ -186,12 +187,11 @@ humidity-to-location map:
         assert_eq!(result, 35);
     }
 
-    #[ignore]
     #[test]
     fn real_answer() {
         let input = std::env::current_dir().unwrap().display().to_string() + "/src/input.txt";
         let input = std::fs::read_to_string(input).expect("input to exist");
         let result = process(&input);
-        assert_eq!(result, 0);
+        assert_eq!(result, 346433842);
     }
 }
