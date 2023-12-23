@@ -120,9 +120,9 @@ fn get_location_from_seed(seed: &u64, seed_maps: &Vec<Vec<AlmanacMap>>) -> u64 {
 }
 
 pub fn process(input: &str) -> u64 {
+    let input = input.replace("\r\n", "\n");
     let (input, seeds) = parse_seeds(&input).expect("seeds can be found");
 
-    // FIXME This will break on Windows because we split on \n\n not \r\n\r\n.
     let mut seed_maps = input.split("\n\n").collect::<Vec<&str>>().into_iter();
 
     let (_, seed_to_soil)            = parse_map(seed_maps.next().unwrap()).expect("seed_to_soil can be found");
