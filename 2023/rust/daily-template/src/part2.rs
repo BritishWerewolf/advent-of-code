@@ -1,4 +1,6 @@
-pub fn process(_input: &str) -> u32 {
+pub fn process(input: &str) -> u32 {
+    let input = input.replace("\r\n", "\n");
+
     0
 }
 
