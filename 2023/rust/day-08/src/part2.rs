@@ -1,5 +1,6 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, fmt::Debug};
 use nom::{IResult, branch::alt, bytes::complete::{tag, take_while_m_n}, Parser, character::complete::{char, newline}, multi::{many1, separated_list1}, sequence::{tuple, delimited}};
+use crate::helpers::lcm;
 
 #[derive(Clone, Copy, Debug)]
 enum Direction {
@@ -20,7 +21,7 @@ impl Direction {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Hash, PartialEq, Eq, PartialOrd, Ord)]
 struct Element(String);
 
 impl Element {
@@ -28,6 +29,13 @@ impl Element {
         Element(source.to_owned())
     }
 }
+
+impl Debug for Element {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Element({})", self.0)
+    }
+}
+
 
 // Create our own parser, because the nom parser is for byte strings, not chars.
 fn is_alphanumeric(c: char) -> bool {
@@ -85,29 +93,37 @@ pub fn process(input: &str) -> u32 {
     // In theory there should be no more `input`.
     let (_input, (directions, elements)) = parse_input(&input).expect("valid input");
 
-    let mut current_elements: Vec<&Element> = elements.keys().filter(|&key| key.0.ends_with('A')).collect();
+    let results = elements
+    .keys()
+    .filter(|&key| key.0.ends_with('A'))
+    .map(|element| {
+        let mut current_element = element;
 
-    // Use find_map to keep iterating over the Elements.
-    // We will return None to iterate through the directions again.
-    // When we return Some, it will cause this infinite loop to end.
-    directions.iter().cycle().enumerate().find_map(|(index, direction)| {
-        let mut next_elements: Vec<&Element> = Vec::new();
-
-        for current_element in &current_elements {
-            next_elements.push(match direction {
+        // Use find_map to keep iterating over the Elements.
+        // We will return None to iterate through the directions again.
+        // When we return Some, it will cause this infinite loop to end.
+        directions
+        .iter()
+        .cycle()
+        .enumerate()
+        .find_map(|(index, direction)| {
+            let next_element = match direction {
                 Direction::Left  => &elements.get(&current_element).expect("has destinations.")[0],
                 Direction::Right => &elements.get(&current_element).expect("has destinations.")[1],
-            });
-        }
+            };
 
-        if next_elements.iter().all(|&next_element| next_element.0.ends_with('Z')) {
-            Some(index as u32 + 1)
-        } else {
-            current_elements = next_elements;
-            None
-        }
+            if next_element.0.ends_with('Z') {
+                Some(index as usize + 1)
+            } else {
+                current_element = next_element;
+                None
+            }
+        })
+        .expect("Element(__Z) to exist.")
     })
-    .expect("All elements that end in Z to exist.")
+    .collect::<Vec<usize>>();
+
+    lcm(&results) as u32
 }
 
 #[cfg(test)]
