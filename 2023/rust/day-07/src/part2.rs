@@ -118,7 +118,7 @@ impl Hand {
                     return a.0.index().cmp(&b.0.index());
                 }
 
-                a.1.cmp(&b.1)
+                a.1.cmp(b.1)
             })
             .expect("a high card to exist.");
 
@@ -176,8 +176,9 @@ fn parse_cards(line: &str) -> IResult<&str, Vec<CardType>> {
         // Convert each card char into a valid CardType.
         (
             line,
-            cards.chars()
-            .map(|card| CardType::new(card))
+            cards
+            .chars()
+            .map(CardType::new)
             .collect::<Vec<CardType>>()
         )
     })
@@ -200,7 +201,7 @@ pub fn process(input: &str) -> u32 {
 
     let mut hands: Vec<Hand> = input
         .lines()
-        .map(|line| parse_hand(&line))
+        .map(parse_hand)
         .collect::<Vec<Hand>>();
 
     hands.sort_by(|a, b| a.compare_against(b));
@@ -222,7 +223,7 @@ T55J5 684
 KK677 28
 KTJJT 220
 QQQJA 483";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 5905);
     }
 

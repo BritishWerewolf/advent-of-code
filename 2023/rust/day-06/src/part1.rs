@@ -62,7 +62,7 @@ pub fn process(input: &str) -> u32 {
     let times = vec_str_to_int(times);
     let distances = vec_str_to_int(distances);
 
-    times.into_iter().zip(distances.into_iter())
+    times.into_iter().zip(distances)
         .map(|(time, distance)| Data::new(time, distance).get_wins())
         .product::<u32>()
 }
@@ -85,7 +85,7 @@ mod tests {
     fn example_input() {
         let input = "Time:      7  15   30
 Distance:  9  40  200";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 288);
     }
 
