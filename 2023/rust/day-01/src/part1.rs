@@ -25,7 +25,7 @@ mod tests {
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 142);
     }
 

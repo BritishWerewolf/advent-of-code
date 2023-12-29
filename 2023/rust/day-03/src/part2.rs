@@ -39,7 +39,7 @@ impl Grid {
     }
 
     fn get_width(&self) -> u32 {
-        if self.data.len() == 0 {
+        if self.data.is_empty() {
             return 0;
         }
         self.data[0].len() as u32
@@ -80,7 +80,7 @@ impl Grid {
                     let mut merge_cell: Vec<&Cell> = Vec::new();
 
                     // Save that exact cell.
-                    merge_cell.push(&current_cell);
+                    merge_cell.push(current_cell);
 
                     // Now expand the cell match.
                     // Go left.
@@ -89,18 +89,18 @@ impl Grid {
                         if tmp_cell.variant() != variant {
                             break;
                         }
-                        merge_cell.push(&tmp_cell);
+                        merge_cell.push(tmp_cell);
                     }
                     // Go right.
                     for tmp_j in ((j + 1) as usize)..=(self.data[i as usize].len() - 1) {
-                        let tmp_cell = &self.data[i as usize][tmp_j as usize];
+                        let tmp_cell = &self.data[i as usize][tmp_j];
                         if tmp_cell.variant() != variant {
                             break;
                         }
-                        merge_cell.push(&tmp_cell);
+                        merge_cell.push(tmp_cell);
                     }
 
-                    if merge_cell.len() > 0 {
+                    if !merge_cell.is_empty() {
                         found_cells.insert(MergeCell::from(merge_cell));
                     }
                 }
@@ -200,7 +200,7 @@ mod tests {
 ......755.
 ...$.*....
 .664.598..";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 467835);
     }
 
@@ -216,7 +216,7 @@ mod tests {
 ..836..........................949....607
 ........367.....328.&......%.............
 ........*.........*..119.253.............";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 1070304);
     }
 

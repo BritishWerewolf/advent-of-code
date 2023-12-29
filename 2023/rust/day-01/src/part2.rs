@@ -46,7 +46,7 @@ xtwone3four
 4nineeightseven2
 zoneight234
 7pqrstsixteen";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 281);
     }
 

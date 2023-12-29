@@ -173,7 +173,7 @@ pub fn process(input: &str) -> u32 {
 
     let mut hands: Vec<Hand> = input
         .lines()
-        .map(|line| parse_hand(&line))
+        .map(parse_hand)
         .collect::<Vec<Hand>>();
 
     hands.sort_by(|a, b| a.compare_against(b));
@@ -195,7 +195,7 @@ T55J5 684
 KK677 28
 KTJJT 220
 QQQJA 483";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 6440);
     }
 

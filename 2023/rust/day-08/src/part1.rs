@@ -92,8 +92,8 @@ pub fn process(input: &str) -> u32 {
     // When we return Some, it will cause this infinite loop to end.
     directions.iter().cycle().enumerate().find_map(|(index, direction)| {
         let next_element = match direction {
-            Direction::Left  => &elements.get(&current_element).expect("has destinations.")[0],
-            Direction::Right => &elements.get(&current_element).expect("has destinations.")[1],
+            Direction::Left  => &elements.get(current_element).expect("has destinations.")[0],
+            Direction::Right => &elements.get(current_element).expect("has destinations.")[1],
         };
 
         if *next_element == Element::new("ZZZ") {
@@ -121,7 +121,7 @@ DDD = (DDD, DDD)
 EEE = (EEE, EEE)
 GGG = (GGG, GGG)
 ZZZ = (ZZZ, ZZZ)";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 2);
     }
 
@@ -132,7 +132,7 @@ ZZZ = (ZZZ, ZZZ)";
 AAA = (BBB, BBB)
 BBB = (AAA, ZZZ)
 ZZZ = (ZZZ, ZZZ)";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 6);
     }
 

@@ -81,7 +81,7 @@ mod tests {
     fn example_input() {
         let input = "Time:      7  15   30
 Distance:  9  40  200";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 71503);
     }
 

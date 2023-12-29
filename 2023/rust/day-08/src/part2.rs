@@ -108,12 +108,12 @@ pub fn process(input: &str) -> u32 {
         .enumerate()
         .find_map(|(index, direction)| {
             let next_element = match direction {
-                Direction::Left  => &elements.get(&current_element).expect("has destinations.")[0],
-                Direction::Right => &elements.get(&current_element).expect("has destinations.")[1],
+                Direction::Left  => &elements.get(current_element).expect("has destinations.")[0],
+                Direction::Right => &elements.get(current_element).expect("has destinations.")[1],
             };
 
             if next_element.0.ends_with('Z') {
-                Some(index as usize + 1)
+                Some(index + 1)
             } else {
                 current_element = next_element;
                 None
@@ -142,7 +142,7 @@ mod tests {
 22C = (22Z, 22Z)
 22Z = (22B, 22B)
 XXX = (XXX, XXX)";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 6);
     }
 

@@ -15,14 +15,14 @@ struct AlmanacMap {
 impl AlmanacMap {
     fn from(source: &u64) -> AlmanacMap {
         AlmanacMap {
-            dest_start: source.clone(),
-            source_start: source.clone(),
+            dest_start: *source,
+            source_start: *source,
             length: 1,
         }
     }
 
     fn contains_source(&self, source: &u64) -> bool {
-        let source_end = &self.source_start + &self.length;
+        let source_end = self.source_start + self.length;
         source >= &self.source_start && source < &source_end
     }
 
@@ -56,7 +56,7 @@ fn parse_seeds(input: &str) -> IResult<&str, Vec<u64>> {
 fn parse_map(input: &str) -> IResult<&str, Vec<AlmanacMap>> {
     let (input, _) = tuple((take_until(":"), tag(":"), newline))(input)?;
     let maps: Vec<AlmanacMap> = input.lines().map(|line| {
-        let (_, seed_map) = parse_space_list(&line).expect("space separated list");
+        let (_, seed_map) = parse_space_list(line).expect("space separated list");
         AlmanacMap {
             dest_start: seed_map[0],
             source_start: seed_map[1],
@@ -67,10 +67,10 @@ fn parse_map(input: &str) -> IResult<&str, Vec<AlmanacMap>> {
     Ok((input, maps))
 }
 
-fn get_almanac_map(seed: u64, seed_maps: &Vec<AlmanacMap>) -> Option<AlmanacMap> {
+fn get_almanac_map(seed: u64, seed_maps: &[AlmanacMap]) -> Option<AlmanacMap> {
     let seed_maps: Vec<AlmanacMap> = seed_maps
-        .clone() // because we need to make new maps if none were found.
-        .into_iter()
+        .iter()
+        .copied()
         .filter(|&seed_map| seed_map.contains_source(&seed))
         .collect();
 
@@ -80,10 +80,10 @@ fn get_almanac_map(seed: u64, seed_maps: &Vec<AlmanacMap>) -> Option<AlmanacMap>
     })
 }
 
-fn get_location_from_seed(seed: &u64, seed_maps: &Vec<Vec<AlmanacMap>>) -> u64 {
+fn get_location_from_seed(seed: &u64, seed_maps: &[Vec<AlmanacMap>]) -> u64 {
     let mut seed_maps = seed_maps.iter();
 
-    let seed = seed.clone();
+    let seed = *seed;
     let seed_map = get_almanac_map(seed, seed_maps.next().unwrap()).expect("seed map can be found");
     //println!("seed: {}, {:?}", &seed, &seed_map);
 
@@ -111,12 +111,7 @@ fn get_location_from_seed(seed: &u64, seed_maps: &Vec<Vec<AlmanacMap>>) -> u64 {
     let humidity_map = get_almanac_map(humidity, seed_maps.next().unwrap()).expect("humidity map can be found");
     //println!("humidity: {}, {:?}", &humidity, &humidity_map);
 
-    let location = humidity_map.convert_source_to_dest(humidity);
-    //println!("location: {}", &location);
-
-    //println!("seed: {seed}, location: {location}");
-    //println!("");
-    location
+    humidity_map.convert_source_to_dest(humidity)
 }
 
 pub fn process(input: &str) -> u64 {
@@ -183,7 +178,7 @@ temperature-to-humidity map:
 humidity-to-location map:
 60 56 37
 56 93 4";
-        let result = process(&input);
+        let result = process(input);
         assert_eq!(result, 35);
     }
 
