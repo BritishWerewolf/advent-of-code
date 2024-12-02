@@ -1,6 +1,11 @@
 default:
     just --list
 
+# Create a new folder for the given day.
 create day:
     if ! command -v cargo generate &> /dev/null; then cargo install cargo-generate; fi
     cargo generate --path ./daily-template --name {{day}}
+
+# Run tests for the given day.
+test day:
+    cargo test --bin {{day}}
