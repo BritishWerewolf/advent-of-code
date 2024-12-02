@@ -14,7 +14,7 @@ just --list
 Available recipes:
     create day
     default
-$ just create day-04
+$ just create day-06
 cargo generate --path ./daily-template --name day-06
  Destination: advent-of-code\2023\rust\day-06
  project-name: day-06
