@@ -1,0 +1,6 @@
+default:
+    just --list
+
+create day:
+    if ! command -v cargo generate &> /dev/null; then cargo install cargo-generate; fi
+    cargo generate --path ./daily-template --name {{day}}
