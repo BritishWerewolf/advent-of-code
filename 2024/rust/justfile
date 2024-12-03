@@ -1,6 +1,23 @@
+# List all available commands.
 default:
     just --list
 
+# Create a new folder for the given day.
 create day:
     if ! command -v cargo generate &> /dev/null; then cargo install cargo-generate; fi
     cargo generate --path ./daily-template --name {{day}}
+
+# Run the given day.
+run day:
+    cargo run --bin {{day}}
+
+# Run tests for the given day.
+test day:
+    cargo test --bin {{day}}
+
+# Merge the given day into main.
+merge day:
+    git switch main
+    git merge --no-ff 2024/{{day}}
+    git push
+    git branch -d 2024/{{day}}
