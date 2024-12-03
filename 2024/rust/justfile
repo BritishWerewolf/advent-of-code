@@ -6,6 +6,10 @@ default:
 create day:
     if ! command -v cargo generate &> /dev/null; then cargo install cargo-generate; fi
     cargo generate --path ./daily-template --name {{day}}
+    git switch -c 2024/{{day}}
+    git add .
+    git commit -m "Set up {{day}}."
+    git push --set-upstream origin 2024/{{day}}
 
 # Run the given day.
 run day:
@@ -18,6 +22,7 @@ test day:
 # Merge the given day into main.
 merge day:
     git switch main
-    git merge --no-ff 2024/{{day}}
+    git merge --no-ff 2024/{{day}} -m "Merge branch '2024/{{day}}'"
     git push
-    git branch -d 2024/{{day}}
+    git push origin --delete 2024/{{day}}
+    git fetch --prune
