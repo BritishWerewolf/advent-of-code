@@ -2,6 +2,9 @@
 default:
     just --list
 
+add package day:
+    cargo add {{package}} --package {{day}}
+
 # Create a new folder for the given day.
 create day:
     if ! command -v cargo generate &> /dev/null; then cargo install cargo-generate; fi
@@ -21,6 +24,7 @@ test day:
 
 # Merge the given day into main.
 merge day:
+    git push
     git switch main
     git merge --no-ff 2024/{{day}} -m "Merge branch '2024/{{day}}'"
     git push
